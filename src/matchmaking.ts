@@ -1,4 +1,4 @@
-import { predictDraw } from 'openskill';
+import { predictDraw, rating } from 'openskill';
 import * as fs from 'fs';
 import * as path from 'path';
 import { activePlayers } from './active-players';
@@ -118,12 +118,33 @@ function createMatchmaking(): MatchmakingResults {
     const resultsPath = path.join(__dirname, '../data/ranks.json');
     const results: Results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
 
-    // Filter results to only include active players
-    const activePlayerRatings = results.players.filter(player =>
-        activePlayers.includes(player.player)
-    );
+    // Create a map of existing player ratings for quick lookup
+    const existingRatings = new Map<string, PlayerRating>();
+    results.players.forEach(player => {
+        existingRatings.set(player.player, player);
+    });
 
-    console.log(`Found ${activePlayerRatings.length} active players out of ${results.players.length} total`);
+    // Create ratings for all active players (including new ones)
+    const activePlayerRatings: PlayerRating[] = activePlayers.map(playerName => {
+        if (existingRatings.has(playerName)) {
+            // Use existing rating
+            return existingRatings.get(playerName)!;
+        } else {
+            // Create default rating for new player
+            const defaultRating = rating();
+            console.log(`Creating default rating for new player: ${playerName}`);
+            return {
+                player: playerName,
+                rating: {
+                    mu: defaultRating.mu,
+                    sigma: defaultRating.sigma
+                },
+                ordinal: 0 // New players start at 0 ordinal
+            };
+        }
+    });
+
+    console.log(`Found ${activePlayerRatings.filter(p => existingRatings.has(p.player)).length} existing players and ${activePlayerRatings.filter(p => !existingRatings.has(p.player)).length} new players`);
 
     // Check if any previously unmatched players are active this round
     const activeUnmatchedFromLast = previouslyUnmatched.filter(player =>
