@@ -1,0 +1,28 @@
+{
+  "name": "skillsheet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "process-matches": "node dist/index.js",
+    "matchmaking": "node dist/matchmaking.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.57",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "openskill": "^4.1.0"
+  }
+}
