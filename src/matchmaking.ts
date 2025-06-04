@@ -1,3 +1,4 @@
+import { predictDraw } from 'openskill';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -91,10 +92,13 @@ function createMatchmaking(): MatchmakingResults {
             for (let j = i + 1; j < sortedPlayers.length; j++) {
                 const candidateEntry = sortedPlayers[j];
                 if (candidateEntry && !paired.has(candidateEntry.originalIndex)) {
-                    // Calculate cost (skill difference + uncertainty penalty)
-                    const skillDiff = Math.abs(playerEntry.player.ordinal - candidateEntry.player.ordinal);
-                    const uncertaintyPenalty = (playerEntry.player.rating.sigma + candidateEntry.player.rating.sigma) / 2;
-                    const cost = skillDiff + uncertaintyPenalty * 0.1;
+                    // Calculate cost using OpenSkill predictDraw - higher predictDraw = better match
+                    // We want to minimize cost, so cost = 1 - predictDraw
+                    // Create Rating objects from the stored rating data
+                    const player1Rating = { mu: playerEntry.player.rating.mu, sigma: playerEntry.player.rating.sigma };
+                    const player2Rating = { mu: candidateEntry.player.rating.mu, sigma: candidateEntry.player.rating.sigma };
+                    const drawProbability = predictDraw([[player1Rating], [player2Rating]]);
+                    const cost = 1 - drawProbability;
 
                     if (!bestMatch || cost < bestMatch.cost) {
                         bestMatch = { player: candidateEntry.player, originalIndex: candidateEntry.originalIndex, cost };
