@@ -1,6 +1,7 @@
 import { predictDraw } from 'openskill';
 import * as fs from 'fs';
 import * as path from 'path';
+import { activePlayers } from './active-players';
 
 interface PlayerRating {
     player: string;
@@ -100,13 +101,22 @@ function createMatchmaking(): MatchmakingResults {
     // Load match history to avoid recent rematches
     const matchHistory = loadMatchHistory();
 
+    // Read previous matchmaking results to get last unmatched players
+    let previouslyUnmatched: string[] = [];
+    const matchesPath = path.join(__dirname, '../data/matches.json');
+    try {
+        if (fs.existsSync(matchesPath)) {
+            const previousResults: MatchmakingResults = JSON.parse(fs.readFileSync(matchesPath, 'utf8'));
+            previouslyUnmatched = previousResults.unmatchedPlayers || [];
+            console.log(`Loaded previous unmatched players: ${previouslyUnmatched.join(', ') || 'none'}`);
+        }
+    } catch (error) {
+        console.log('No previous matches.json found, starting fresh');
+    }
+
     // Read the results data
     const resultsPath = path.join(__dirname, '../data/ranks.json');
     const results: Results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-
-    // Read the active players data
-    const activePlayersPath = path.join(__dirname, '../data/active-players.json');
-    const activePlayers: string[] = JSON.parse(fs.readFileSync(activePlayersPath, 'utf8'));
 
     // Filter results to only include active players
     const activePlayerRatings = results.players.filter(player =>
@@ -115,17 +125,48 @@ function createMatchmaking(): MatchmakingResults {
 
     console.log(`Found ${activePlayerRatings.length} active players out of ${results.players.length} total`);
 
+    // Check if any previously unmatched players are active this round
+    const activeUnmatchedFromLast = previouslyUnmatched.filter(player =>
+        activePlayers.includes(player)
+    );
+
+    if (activeUnmatchedFromLast.length > 0) {
+        console.log(`Previously unmatched players who are active: ${activeUnmatchedFromLast.join(', ')}`);
+    }
+
     // If odd number of players, remove one (we'll handle this in unmatched)
     const playersToMatch = activePlayerRatings.slice();
     let unmatchedPlayers: string[] = [];
 
     if (playersToMatch.length % 2 === 1) {
-        // Remove the player with highest uncertainty (sigma) as they need more matches to stabilize
-        const mostUncertainPlayer = playersToMatch.reduce((prev, current) =>
-            current.rating.sigma > prev.rating.sigma ? current : prev
+        // Prioritize matching previously unmatched players by removing someone else
+        // Only remove a previously unmatched player if they're the only option
+        let playerToRemove: PlayerRating;
+
+        const nonPreviouslyUnmatched = playersToMatch.filter(player =>
+            !previouslyUnmatched.includes(player.player)
         );
-        unmatchedPlayers.push(mostUncertainPlayer.player);
-        const index = playersToMatch.findIndex(p => p.player === mostUncertainPlayer.player);
+
+        if (nonPreviouslyUnmatched.length > 0) {
+            // Remove from players who weren't unmatched last time, preferring highest uncertainty
+            playerToRemove = nonPreviouslyUnmatched.reduce((prev, current) =>
+                current.rating.sigma > prev.rating.sigma ? current : prev
+            );
+            console.log(`Removing ${playerToRemove.player} (wasn't previously unmatched, high uncertainty)`);
+        } else {
+            // All players were unmatched last time, so remove the one with highest uncertainty
+            playerToRemove = playersToMatch.reduce((prev, current) =>
+                current.rating.sigma > prev.rating.sigma ? current : prev
+            );
+            console.log(`Removing ${playerToRemove.player} (high uncertainty, all were previously unmatched)`);
+        }
+
+        if (previouslyUnmatched.includes(playerToRemove.player)) {
+            console.warn(`${playerToRemove.player} is unmatched two rounds in a row.`);
+        }
+
+        unmatchedPlayers.push(playerToRemove.player);
+        const index = playersToMatch.findIndex(p => p.player === playerToRemove.player);
         playersToMatch.splice(index, 1);
     }
 

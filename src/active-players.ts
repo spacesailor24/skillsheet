@@ -1,0 +1,28 @@
+// Active players for the current tournament round
+// Comment out players who are not attending
+
+export const activePlayers: string[] = [
+    "bjax",
+    "MrOldMaan",
+    "ChicagoTed",
+    "spacesailor24",
+    "Cypher-1",
+    "Lobus",
+    "Apau11o",
+    "TheChiropractor",
+    "PelicanHazard",
+    "WinRAR42",
+    "Zwoid",
+    "Zero0721",
+    "IntruderThree",
+    "AltFour_Industries",
+    "Mandoolk",
+    "ComradeBunji",
+    "LaoPak",
+    "SIGNCUTTER",
+    "Savaulis",
+    "Captain Maddog",
+    "HarryComa",
+    "Bloodangel92",
+    "TangibleRaptor"
+]; 
