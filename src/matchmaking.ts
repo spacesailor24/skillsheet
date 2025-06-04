@@ -33,7 +33,73 @@ interface MatchmakingResults {
     timestamp: string;
 }
 
+interface HistoricalMatch {
+    player1: string;
+    player2: string;
+    timestamp: string;
+    round?: number;
+}
+
+interface MatchHistory {
+    matches: HistoricalMatch[];
+    lookbackRounds: number;
+}
+
+function loadMatchHistory(): MatchHistory {
+    const historyPath = path.join(__dirname, '../data/recent-matches.json');
+    try {
+        if (fs.existsSync(historyPath)) {
+            return JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+        }
+    } catch (error) {
+        console.log('No existing match history found, starting fresh');
+    }
+
+    return {
+        matches: [],
+        lookbackRounds: 3
+    };
+}
+
+function saveMatchHistory(history: MatchHistory): void {
+    const historyPath = path.join(__dirname, '../data/recent-matches.json');
+    fs.writeFileSync(historyPath, JSON.stringify(history, null, 2), 'utf8');
+}
+
+function hasRecentMatch(player1: string, player2: string, history: MatchHistory): boolean {
+    return history.matches.some(match =>
+        (match.player1 === player1 && match.player2 === player2) ||
+        (match.player1 === player2 && match.player2 === player1)
+    );
+}
+
+function updateMatchHistory(newMatches: Match[], history: MatchHistory): MatchHistory {
+    const currentTimestamp = new Date().toISOString();
+
+    // Add new matches to history
+    const newHistoricalMatches: HistoricalMatch[] = newMatches.map(match => ({
+        player1: match.player1,
+        player2: match.player2,
+        timestamp: currentTimestamp
+    }));
+
+    // Combine with existing matches
+    const updatedMatches = [...newHistoricalMatches, ...history.matches];
+
+    // Keep only recent matches (could be improved with actual round tracking)
+    // For now, we'll keep last 50 matches as a simple approximation
+    const maxMatches = history.lookbackRounds * 15; // Assume ~15 matches per round
+
+    return {
+        matches: updatedMatches.slice(0, maxMatches),
+        lookbackRounds: history.lookbackRounds
+    };
+}
+
 function createMatchmaking(): MatchmakingResults {
+    // Load match history to avoid recent rematches
+    const matchHistory = loadMatchHistory();
+
     // Read the results data
     const resultsPath = path.join(__dirname, '../data/ranks.json');
     const results: Results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
@@ -77,10 +143,15 @@ function createMatchmaking(): MatchmakingResults {
     const matches: Match[] = [];
     const paired = new Set<number>();
 
-    // Sort players by skill level for better pairing
+    // Sort players by conservative skill estimate for better pairing
+    // Uses μ - 3σ (99.7% confidence lower bound) similar to TrueSkill seeding
+    // This ensures players with high uncertainty are ranked more conservatively
     const sortedPlayers = playersToMatch
         .map((player, index) => ({ player, originalIndex: index }))
-        .sort((a, b) => b.player.ordinal - a.player.ordinal);
+        .sort((a, b) =>
+            (b.player.rating.mu - 3 * b.player.rating.sigma) -
+            (a.player.rating.mu - 3 * a.player.rating.sigma)
+        );
 
     // Greedy matching: for each unpaired player, find the best available match
     for (let i = 0; i < sortedPlayers.length; i++) {
@@ -92,13 +163,19 @@ function createMatchmaking(): MatchmakingResults {
             for (let j = i + 1; j < sortedPlayers.length; j++) {
                 const candidateEntry = sortedPlayers[j];
                 if (candidateEntry && !paired.has(candidateEntry.originalIndex)) {
-                    // Calculate cost using OpenSkill predictDraw - higher predictDraw = better match
+                    // Calculate base cost using OpenSkill predictDraw - higher predictDraw = better match
                     // We want to minimize cost, so cost = 1 - predictDraw
-                    // Create Rating objects from the stored rating data
                     const player1Rating = { mu: playerEntry.player.rating.mu, sigma: playerEntry.player.rating.sigma };
                     const player2Rating = { mu: candidateEntry.player.rating.mu, sigma: candidateEntry.player.rating.sigma };
                     const drawProbability = predictDraw([[player1Rating], [player2Rating]]);
-                    const cost = 1 - drawProbability;
+                    let cost = 1 - drawProbability;
+
+                    // Add penalty for recent matches to encourage variety
+                    const RECENT_MATCH_PENALTY = 0.2;
+                    if (hasRecentMatch(playerEntry.player.player, candidateEntry.player.player, matchHistory)) {
+                        cost += RECENT_MATCH_PENALTY;
+                        console.log(`Applied recent match penalty to ${playerEntry.player.player} vs ${candidateEntry.player.player}`);
+                    }
 
                     if (!bestMatch || cost < bestMatch.cost) {
                         bestMatch = { player: candidateEntry.player, originalIndex: candidateEntry.originalIndex, cost };
@@ -148,6 +225,11 @@ function saveMatchmaking(): void {
     const outputPath = path.join(__dirname, '../data/matches.json');
     fs.writeFileSync(outputPath, JSON.stringify(matchmakingResults, null, 2), 'utf8');
 
+    // Update match history with new matches
+    const currentHistory = loadMatchHistory();
+    const updatedHistory = updateMatchHistory(matchmakingResults.matches, currentHistory);
+    saveMatchHistory(updatedHistory);
+
     console.log(`\n=== MATCHMAKING RESULTS ===`);
     console.log(`Total active players: ${matchmakingResults.totalActivePlayers}`);
     console.log(`Matches created: ${matchmakingResults.matches.length}`);
@@ -167,6 +249,7 @@ function saveMatchmaking(): void {
     });
 
     console.log(`Results saved to: ${outputPath}`);
+    console.log(`Match history updated: ${updatedHistory.matches.length} recent matches tracked`);
 }
 
 // Export functions for testing

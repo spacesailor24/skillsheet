@@ -2,80 +2,80 @@
   "matches": [
     {
       "player1": "bjax",
-      "player2": "ChicagoTed",
-      "skillDifference": 12.333154876919988,
-      "averageSkill": 19.55794530470721,
-      "confidence": 0.15637298841505975
+      "player2": "MrOldMaan",
+      "skillDifference": 11.78779081302719,
+      "averageSkill": 19.830627336653606,
+      "confidence": 0.16343266982514607
     },
     {
-      "player1": "MrOldMaan",
+      "player1": "ChicagoTed",
       "player2": "spacesailor24",
-      "skillDifference": 1.5081995087994358,
-      "averageSkill": 13.182632175740295,
-      "confidence": 0.1630777798235119
+      "skillDifference": 0.9628354449066379,
+      "averageSkill": 12.909950143793896,
+      "confidence": 0.15604806558755646
     },
     {
       "player1": "Cypher-1",
-      "player2": "Lobus",
-      "skillDifference": 2.9716896661271512,
-      "averageSkill": 9.882799843452355,
-      "confidence": 0.14374672599795651
+      "player2": "Apau11o",
+      "skillDifference": 3.968034123567584,
+      "averageSkill": 9.384627614732139,
+      "confidence": 0.14381864135864475
     },
     {
-      "player1": "Apau11o",
+      "player1": "Lobus",
       "player2": "TheChiropractor",
-      "skillDifference": 1.2781165631111158,
-      "averageSkill": 6.761552271392789,
-      "confidence": 0.14329068590296767
+      "skillDifference": 2.2744610205515485,
+      "averageSkill": 7.2597245001130055,
+      "confidence": 0.14321929744189824
     },
     {
       "player1": "PelicanHazard",
-      "player2": "WinRAR42",
-      "skillDifference": 0.2965193256967531,
-      "averageSkill": 5.630613166688667,
-      "confidence": 0.15136533645652678
+      "player2": "Zwoid",
+      "skillDifference": 2.257006054020085,
+      "averageSkill": 4.650369802527001,
+      "confidence": 0.1518176261930432
     },
     {
-      "player1": "Zwoid",
+      "player1": "WinRAR42",
+      "player2": "Zero0721",
+      "skillDifference": 2.7010784860307666,
+      "averageSkill": 4.131814260824907,
+      "confidence": 0.14320911997146457
+    },
+    {
+      "player1": "IntruderThree",
       "player2": "AltFour_Industries",
-      "skillDifference": 1.622866576701398,
-      "averageSkill": 2.7104334871662594,
-      "confidence": 0.14947581552557457
-    },
-    {
-      "player1": "Zero0721",
-      "player2": "IntruderThree",
-      "skillDifference": 0.5911017830659269,
-      "averageSkill": 2.48572412627656,
-      "confidence": 0.13650527961544015
+      "skillDifference": 0.29117303592803623,
+      "averageSkill": 2.0445867167795786,
+      "confidence": 0.14179055641950417
     },
     {
       "player1": "Mandoolk",
-      "player2": "ComradeBunji",
-      "skillDifference": 0.5783554252237337,
-      "averageSkill": -0.5295187447442515,
-      "confidence": 0.13475392187700844
+      "player2": "LaoPak",
+      "skillDifference": 0.8939373615219601,
+      "averageSkill": -0.6873097128933647,
+      "confidence": 0.13472944092523778
     },
     {
-      "player1": "LaoPak",
+      "player1": "ComradeBunji",
       "player2": "Savaulis",
-      "skillDifference": 0.6265204761651724,
-      "averageSkill": -1.447538631736931,
-      "confidence": 0.14251547134692674
+      "skillDifference": 0.9421024124633988,
+      "averageSkill": -1.2897476635878178,
+      "confidence": 0.14254286385955206
     },
     {
       "player1": "SIGNCUTTER",
-      "player2": "Captain Maddog",
-      "skillDifference": 1.2973740581740252,
-      "averageSkill": -1.923128228057939,
-      "confidence": 0.13745225526567637
+      "player2": "Bloodangel92",
+      "skillDifference": 6.872286549882709,
+      "averageSkill": -4.710584473912281,
+      "confidence": 0.1368892294237275
     },
     {
-      "player1": "Bloodangel92",
+      "player1": "Captain Maddog",
       "player2": "TangibleRaptor",
-      "skillDifference": 0.1579235280453517,
-      "averageSkill": -8.225689512876311,
-      "confidence": 0.14631632048068613
+      "skillDifference": 5.732836019754036,
+      "averageSkill": -5.438233267021969,
+      "confidence": 0.14695974609224008
     }
   ],
   "totalActivePlayers": 23,
@@ -83,5 +83,5 @@
     "HarryComa"
   ],
   "algorithm": "greedy-optimal",
-  "timestamp": "2025-06-04T22:28:10.201Z"
+  "timestamp": "2025-06-04T22:39:36.432Z"
 }
