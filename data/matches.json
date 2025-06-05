@@ -1,87 +1,45 @@
 {
   "matches": [
     {
-      "player1": "bjax",
+      "player1": "Cypher-1",
       "player2": "spacesailor24",
-      "skillDifference": 13.295990321826626,
-      "averageSkill": 19.07652758225389,
-      "confidence": 0.16154030320788437
-    },
-    {
-      "player1": "MrOldMaan",
-      "player2": "Cypher-1",
-      "skillDifference": 2.568087253624082,
-      "averageSkill": 12.652688303327972,
-      "confidence": 0.15855469353898932
+      "skillDifference": 3.509395299721202,
+      "averageSkill": 18.608866930329654,
+      "confidence": 0.17304251205934823
     },
     {
       "player1": "ChicagoTed",
-      "player2": "Lobus",
-      "skillDifference": 4.994412855858435,
-      "averageSkill": 10.894161438317997,
-      "confidence": 0.14313703178785336
-    },
-    {
-      "player1": "Apau11o",
-      "player2": "WinRAR42",
-      "skillDifference": 1.9182570491080568,
-      "averageSkill": 6.441482028394319,
-      "confidence": 0.14310142320059446
-    },
-    {
-      "player1": "TheChiropractor",
-      "player2": "PelicanHazard",
-      "skillDifference": 0.34362116030018797,
-      "averageSkill": 5.950683409687137,
-      "confidence": 0.15157710583567618
-    },
-    {
-      "player1": "Zwoid",
-      "player2": "Zero0721",
-      "skillDifference": 0.7405917577074348,
-      "averageSkill": 3.151570896663241,
-      "confidence": 0.14361391512427418
-    },
-    {
-      "player1": "IntruderThree",
-      "player2": "ComradeBunji",
-      "skillDifference": 3.008869692099715,
-      "averageSkill": 0.6857383886937392,
-      "confidence": 0.13699350090395476
+      "player2": "MrOldMaan",
+      "skillDifference": 1.234422333157518,
+      "averageSkill": 13.565930859296518,
+      "confidence": 0.17366301752137578
     },
     {
       "player1": "AltFour_Industries",
-      "player2": "LaoPak",
-      "skillDifference": 3.0332785924699053,
-      "averageSkill": 0.38236090258060784,
-      "confidence": 0.1419549805596819
+      "player2": "Lobus",
+      "skillDifference": 4.889179725153149,
+      "averageSkill": 8.932824405744004,
+      "confidence": 0.157110919215767
     },
     {
-      "player1": "Savaulis",
-      "player2": "Captain Maddog",
-      "skillDifference": 0.8110163873254344,
-      "averageSkill": -2.1663070634822343,
-      "confidence": 0.14251983822148323
+      "player1": "Apau11o",
+      "player2": "ComradeBunji",
+      "skillDifference": 0.08017647106155223,
+      "averageSkill": 5.377736733712689,
+      "confidence": 0.15315728613238502
     },
     {
-      "player1": "SIGNCUTTER",
-      "player2": "HarryComa",
-      "skillDifference": 4.0214998612195,
-      "averageSkill": -3.285191129580676,
-      "confidence": 0.1348746064840278
-    },
-    {
-      "player1": "Bloodangel92",
-      "player2": "TangibleRaptor",
-      "skillDifference": 0.1579235280453517,
-      "averageSkill": -8.225689512876311,
-      "confidence": 0.14631632048068613
+      "player1": "reachalexg",
+      "player2": "IntruderThree",
+      "skillDifference": 0.281079908549831,
+      "averageSkill": -2.7074500618729633,
+      "confidence": 0.13706328055202102
     }
   ],
-  "totalActivePlayers": 23,
+  "totalActivePlayers": 11,
   "unmatchedPlayers": [
-    "Mandoolk"
+    "Sizin101"
   ],
   "algorithm": "greedy-optimal",
-  "timestamp": "2025-06-04T23:00:45.213Z"
+  "timestamp": "2025-06-05T01:45:59.133Z"
 }
