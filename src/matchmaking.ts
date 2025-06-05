@@ -46,6 +46,13 @@ interface MatchHistory {
     lookbackRounds: number;
 }
 
+interface SkillGroup {
+    name: string;
+    players: PlayerRating[];
+    minOrdinal: number;
+    maxOrdinal: number;
+}
+
 function loadMatchHistory(): MatchHistory {
     const historyPath = path.join(__dirname, '../data/recent-matches.json');
     try {
@@ -97,6 +104,103 @@ function updateMatchHistory(newMatches: Match[], history: MatchHistory): MatchHi
     };
 }
 
+function createSkillGroups(players: PlayerRating[]): SkillGroup[] {
+    // Sort players by ordinal rating
+    const sortedPlayers = [...players].sort((a, b) => b.ordinal - a.ordinal);
+
+    if (sortedPlayers.length === 0) return [];
+
+    const groups: SkillGroup[] = [];
+    const MAX_GROUP_RANGE = 3.0; // Maximum ordinal difference within a group (tightened)
+    const MAX_GROUP_SIZE = 6;    // Maximum players per group (reduced for better balance)
+
+    let currentGroup: PlayerRating[] = [];
+
+    for (let i = 0; i < sortedPlayers.length; i++) {
+        const player = sortedPlayers[i];
+        if (!player) continue;
+
+        // If this is the first player or we need to start a new group
+        if (currentGroup.length === 0) {
+            currentGroup = [player];
+            continue;
+        }
+
+        const groupStartOrdinal = currentGroup[0]?.ordinal ?? 0;
+        const ordinalDiff = groupStartOrdinal - player.ordinal;
+
+        // Adaptive max range - tighter for higher skill levels
+        let adaptiveMaxRange = MAX_GROUP_RANGE;
+        if (groupStartOrdinal > 15) {
+            adaptiveMaxRange = 2.0; // Very tight for elite players
+        } else if (groupStartOrdinal > 5) {
+            adaptiveMaxRange = 2.5; // Tight for advanced players
+        }
+
+
+
+        // Start a new group if:
+        // 1. Current group would exceed adaptive max range (regardless of size), OR
+        // 2. Current group is at max size
+        if (ordinalDiff > adaptiveMaxRange || currentGroup.length >= MAX_GROUP_SIZE) {
+
+            // Finalize current group
+            groups.push(createGroup(currentGroup, groups.length));
+
+            // Start new group with current player
+            currentGroup = [player];
+        } else {
+            currentGroup.push(player);
+        }
+    }
+
+    // Add the last group
+    if (currentGroup.length > 0) {
+        groups.push(createGroup(currentGroup, groups.length));
+    }
+
+    return groups;
+}
+
+function createGroup(players: PlayerRating[], groupIndex: number): SkillGroup {
+    const maxOrdinal = Math.max(...players.map(p => p.ordinal));
+    const minOrdinal = Math.min(...players.map(p => p.ordinal));
+
+    const starCitizenRanks = [
+        "UEE Navy Vanguard",
+        "Fleet Commander",
+        "Wing Commander",
+        "Squadron Ace",
+        "Strike Pilot",
+        "Mercenary Pilot",
+        "Freelancer Pilot",
+        "Civilian Pilot",
+        "Rookie Pilot",
+        "Cadet"
+    ];
+
+    // Use group index to assign unique names, fallback to numbered if we exceed the list
+    let groupName: string;
+    if (groupIndex < starCitizenRanks.length) {
+        groupName = `${starCitizenRanks[groupIndex]} (min: ${minOrdinal.toFixed(1)}, max: ${maxOrdinal.toFixed(1)})`;
+    } else {
+        groupName = `Civilian Pilot ${groupIndex - starCitizenRanks.length + 1} (min: ${minOrdinal.toFixed(1)}, max: ${maxOrdinal.toFixed(1)})`;
+    }
+
+    return {
+        name: groupName,
+        players,
+        minOrdinal,
+        maxOrdinal
+    };
+}
+
+function getPlayerGroup(playerName: string, groups: SkillGroup[]): SkillGroup | null {
+    return groups.find(group =>
+        group.players.some(p => p.player === playerName)
+    ) || null;
+}
+
 function createMatchmaking(): MatchmakingResults {
     // Load match history to avoid recent rematches
     const matchHistory = loadMatchHistory();
@@ -145,6 +249,14 @@ function createMatchmaking(): MatchmakingResults {
     });
 
     console.log(`Found ${activePlayerRatings.filter(p => existingRatings.has(p.player)).length} existing players and ${activePlayerRatings.filter(p => !existingRatings.has(p.player)).length} new players`);
+
+    // Create skill groups for balanced matchmaking
+    const skillGroups = createSkillGroups(activePlayerRatings);
+    console.log(`\n=== SKILL GROUPS ===`);
+    skillGroups.forEach((group, index) => {
+        console.log(`${group.name}: ${group.players.length} players`);
+        console.log(`  Players: ${group.players.map(p => p.player).join(', ')}`);
+    });
 
     // Check if any previously unmatched players are active this round
     const activeUnmatchedFromLast = previouslyUnmatched.filter(player =>
@@ -232,8 +344,19 @@ function createMatchmaking(): MatchmakingResults {
                     const drawProbability = predictDraw([[player1Rating], [player2Rating]]);
                     let cost = 1 - drawProbability;
 
-                    // Add penalty for recent matches to encourage variety
-                    const RECENT_MATCH_PENALTY = 0.2;
+                    // Skill group penalties - heavily favor within-group matches
+                    const player1Group = getPlayerGroup(playerEntry.player.player, skillGroups);
+                    const player2Group = getPlayerGroup(candidateEntry.player.player, skillGroups);
+
+                    const CROSS_GROUP_PENALTY = 0.5; // Much higher than recent match penalty
+                    const RECENT_MATCH_PENALTY = 0.1;  // Reduced from 0.2 to favor skill balance
+
+                    if (player1Group && player2Group && player1Group.name !== player2Group.name) {
+                        cost += CROSS_GROUP_PENALTY;
+                        // console.log(`Applied cross-group penalty to ${playerEntry.player.player} (${player1Group.name}) vs ${candidateEntry.player.player} (${player2Group.name})`);
+                    }
+
+                    // Add smaller penalty for recent matches (only within same skill group)
                     if (hasRecentMatch(playerEntry.player.player, candidateEntry.player.player, matchHistory)) {
                         cost += RECENT_MATCH_PENALTY;
                         console.log(`Applied recent match penalty to ${playerEntry.player.player} vs ${candidateEntry.player.player}`);
@@ -303,10 +426,37 @@ function saveMatchmaking(): void {
 
     console.log(`\n=== GENERATED MATCHES ===`);
     matchmakingResults.matches.forEach((match, index) => {
-        console.log(`Match ${index + 1}: ${match.player1} vs ${match.player2}`);
+        // Get skill groups for display
+        const resultsData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/ranks.json'), 'utf8'));
+        const allPlayers = [...resultsData.players];
+        // Add new players with default ratings for group calculation
+        activePlayers.forEach(name => {
+            if (!allPlayers.find(p => p.player === name)) {
+                const defaultRating = rating();
+                allPlayers.push({
+                    player: name,
+                    rating: { mu: defaultRating.mu, sigma: defaultRating.sigma },
+                    ordinal: 0
+                });
+            }
+        });
+        const displayGroups = createSkillGroups(allPlayers.filter(p => activePlayers.includes(p.player)));
+
+        const player1Group = getPlayerGroup(match.player1, displayGroups);
+        const player2Group = getPlayerGroup(match.player2, displayGroups);
+
+        // Use skill difference rather than group membership for warnings
+        // A skill difference > 5 is concerning, regardless of groups
+        const isGoodMatch = match.skillDifference <= 5.0;
+        const crossGroup = player1Group?.name !== player2Group?.name;
+
+        console.log(`Match ${index + 1}: ${match.player1} vs ${match.player2} ${isGoodMatch ? '✓' : '⚠️'}`);
         console.log(`  Skill difference: ${match.skillDifference.toFixed(2)}`);
         console.log(`  Average skill: ${match.averageSkill.toFixed(2)}`);
         console.log(`  Match confidence: ${match.confidence.toFixed(2)}`);
+        if (player1Group && player2Group) {
+            console.log(`  Groups: ${player1Group.name} vs ${player2Group.name}${crossGroup ? ' (cross-group)' : ''}`);
+        }
         console.log('');
     });
 
