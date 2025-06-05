@@ -167,16 +167,16 @@ function createGroup(players: PlayerRating[], groupIndex: number): SkillGroup {
     const minOrdinal = Math.min(...players.map(p => p.ordinal));
 
     const starCitizenRanks = [
-        "UEE Navy Vanguard",
-        "Fleet Commander",
-        "Wing Commander",
-        "Squadron Ace",
-        "Strike Pilot",
-        "Mercenary Pilot",
-        "Freelancer Pilot",
-        "Civilian Pilot",
-        "Rookie Pilot",
-        "Cadet"
+        "Vanguard Ace",           // Elite dogfighting legend
+        "Strike Captain",         // Top-tier tactical combat pilot
+        "Interceptor",            // High-skill, fast-response pilot
+        "Combat Aviator",         // Proven in multiple engagements
+        "Battle Wingman",         // Reliable and skilled fighter
+        "Deck Pilot",             // Competent line pilot in regular service
+        "Flight Cadet",           // In training, developing skills
+        "Naval Trainee",          // New recruit with basic certs
+        "Sim Rookie",             // Beginner with mostly sim experience
+        "Hangar Rat"              // Entry-level, barely flown live missions
     ];
 
     // Use group index to assign unique names, fallback to numbered if we exceed the list
