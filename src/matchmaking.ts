@@ -344,16 +344,35 @@ function createMatchmaking(): MatchmakingResults {
                     const drawProbability = predictDraw([[player1Rating], [player2Rating]]);
                     let cost = 1 - drawProbability;
 
-                    // Skill group penalties - heavily favor within-group matches
+                    // Dynamic skill group penalties - scale based on group distance
                     const player1Group = getPlayerGroup(playerEntry.player.player, skillGroups);
                     const player2Group = getPlayerGroup(candidateEntry.player.player, skillGroups);
 
-                    const CROSS_GROUP_PENALTY = 0.5; // Much higher than recent match penalty
                     const RECENT_MATCH_PENALTY = 0.1;  // Reduced from 0.2 to favor skill balance
 
                     if (player1Group && player2Group && player1Group.name !== player2Group.name) {
-                        cost += CROSS_GROUP_PENALTY;
-                        // console.log(`Applied cross-group penalty to ${playerEntry.player.player} (${player1Group.name}) vs ${candidateEntry.player.player} (${player2Group.name})`);
+                        // Calculate group distance (how many groups apart they are)
+                        const player1GroupIndex = skillGroups.findIndex(g => g.name === player1Group.name);
+                        const player2GroupIndex = skillGroups.findIndex(g => g.name === player2Group.name);
+                        const groupGap = Math.abs(player1GroupIndex - player2GroupIndex);
+
+                        // Dynamic penalty scaling:
+                        // Adjacent groups (gap=1): 0.15 penalty (allows close crossover)
+                        // 2 groups apart: 0.35 penalty  
+                        // 3+ groups apart: 0.6+ penalty (heavily discouraged)
+                        let crossGroupPenalty: number;
+                        if (groupGap === 1) {
+                            crossGroupPenalty = 0.15; // Light penalty for adjacent groups
+                        } else if (groupGap === 2) {
+                            crossGroupPenalty = 0.35; // Medium penalty
+                        } else if (groupGap === 3) {
+                            crossGroupPenalty = 0.6;  // Heavy penalty
+                        } else {
+                            crossGroupPenalty = 0.8 + (groupGap - 4) * 0.2; // Escalating penalty for large gaps
+                        }
+
+                        cost += crossGroupPenalty;
+                        // console.log(`Applied cross-group penalty (${crossGroupPenalty.toFixed(2)}) to ${playerEntry.player.player} (${player1Group.name}) vs ${candidateEntry.player.player} (${player2Group.name}) - gap: ${groupGap}`);
                     }
 
                     // Add smaller penalty for recent matches (only within same skill group)
@@ -450,12 +469,25 @@ function saveMatchmaking(): void {
         const isGoodMatch = match.skillDifference <= 5.0;
         const crossGroup = player1Group?.name !== player2Group?.name;
 
+        // Calculate group gap for cross-group matches
+        let groupGapInfo = '';
+        if (crossGroup && player1Group && player2Group) {
+            const player1GroupIndex = displayGroups.findIndex(g => g.name === player1Group.name);
+            const player2GroupIndex = displayGroups.findIndex(g => g.name === player2Group.name);
+            const groupGap = Math.abs(player1GroupIndex - player2GroupIndex);
+            if (groupGap === 1) {
+                groupGapInfo = ' (adjacent groups)';
+            } else {
+                groupGapInfo = ` (${groupGap} groups apart)`;
+            }
+        }
+
         console.log(`Match ${index + 1}: ${match.player1} vs ${match.player2} ${isGoodMatch ? '✓' : '⚠️'}`);
         console.log(`  Skill difference: ${match.skillDifference.toFixed(2)}`);
         console.log(`  Average skill: ${match.averageSkill.toFixed(2)}`);
         console.log(`  Match confidence: ${match.confidence.toFixed(2)}`);
         if (player1Group && player2Group) {
-            console.log(`  Groups: ${player1Group.name} vs ${player2Group.name}${crossGroup ? ' (cross-group)' : ''}`);
+            console.log(`  Groups: ${player1Group.name} vs ${player2Group.name}${crossGroup ? groupGapInfo : ''}`);
         }
         console.log('');
     });
