@@ -176,7 +176,7 @@ function createGroup(players: PlayerRating[], groupIndex: number): SkillGroup {
         "Flight Cadet",           // In training, developing skills
         "Naval Trainee",          // New recruit with basic certs
         "Sim Rookie",             // Beginner with mostly sim experience
-        "Hangar Rat"              // Entry-level, barely flown live missions
+        "New Wing"              // Entry-level, barely flown live missions
     ];
 
     // Use group index to assign unique names, fallback to numbered if we exceed the list
