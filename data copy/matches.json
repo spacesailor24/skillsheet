@@ -1,0 +1,52 @@
+{
+  "matches": [
+    {
+      "player1": "spacesailor24",
+      "player2": "Cypher-1",
+      "skillDifference": 3.9224804823472645,
+      "averageSkill": 17.65964472783508,
+      "confidence": 0.17758633747786653
+    },
+    {
+      "player1": "ChicagoTed",
+      "player2": "AltFour_Industries",
+      "skillDifference": 0.6440072344693384,
+      "averageSkill": 14.37914697096947,
+      "confidence": 0.16729945743061267
+    },
+    {
+      "player1": "MrOldMaan",
+      "player2": "Apau11o",
+      "skillDifference": 4.350119219889567,
+      "averageSkill": 9.27183073712287,
+      "confidence": 0.16966133945823797
+    },
+    {
+      "player1": "WinRAR42",
+      "player2": "DarkMavrick",
+      "skillDifference": 1.9310610067684841,
+      "averageSkill": 7.319462304903519,
+      "confidence": 0.14085478466848636
+    },
+    {
+      "player1": "ComradeBunji",
+      "player2": "Lobus",
+      "skillDifference": 0.5378829373638041,
+      "averageSkill": 4.6027798109163065,
+      "confidence": 0.15728815248059871
+    },
+    {
+      "player1": "IntruderThree",
+      "player2": "LiL_Mantis",
+      "skillDifference": 1.7041137565902424,
+      "averageSkill": -0.9796934541491691,
+      "confidence": 0.13765665592987272
+    }
+  ],
+  "totalActivePlayers": 13,
+  "unmatchedPlayers": [
+    "BIGDIRT95"
+  ],
+  "algorithm": "greedy-optimal",
+  "timestamp": "2025-06-10T01:24:23.657Z"
+}

@@ -2,44 +2,49 @@
   "matches": [
     {
       "player1": "Cypher-1",
-      "player2": "spacesailor24",
-      "skillDifference": 3.509395299721202,
-      "averageSkill": 18.608866930329654,
-      "confidence": 0.17304251205934823
+      "player2": "ChicagoTed",
+      "skillDifference": 1.2063994663438535,
+      "averageSkill": 16.102970931187315,
+      "confidence": 0.17974325812906428
     },
     {
-      "player1": "ChicagoTed",
-      "player2": "MrOldMaan",
-      "skillDifference": 1.234422333157518,
-      "averageSkill": 13.565930859296518,
-      "confidence": 0.17366301752137578
+      "player1": "MrOldMaan",
+      "player2": "AltFour_Industries",
+      "skillDifference": 2.793771099509158,
+      "averageSkill": 13.23746158888217,
+      "confidence": 0.1828646071395529
     },
     {
-      "player1": "AltFour_Industries",
-      "player2": "Lobus",
-      "skillDifference": 4.889179725153149,
-      "averageSkill": 8.932824405744004,
-      "confidence": 0.157110919215767
+      "player1": "WinRAR42",
+      "player2": "Apau11o",
+      "skillDifference": 1.4226123520129157,
+      "averageSkill": 8.69911393897267,
+      "confidence": 0.1638489851734858
     },
     {
-      "player1": "Apau11o",
+      "player1": "DarkMavrick",
       "player2": "ComradeBunji",
-      "skillDifference": 0.08017647106155223,
-      "averageSkill": 5.377736733712689,
-      "confidence": 0.15315728613238502
+      "skillDifference": 0.9153849416773383,
+      "averageSkill": 6.604994012024132,
+      "confidence": 0.1510982672837034
     },
     {
-      "player1": "reachalexg",
+      "player1": "Lobus",
       "player2": "IntruderThree",
-      "skillDifference": 0.281079908549831,
-      "averageSkill": -2.7074500618729633,
-      "confidence": 0.13706328055202102
+      "skillDifference": 4.20993446002603,
+      "averageSkill": 3.2593636731992053,
+      "confidence": 0.16324036918217816
+    },
+    {
+      "player1": "BIGDIRT95",
+      "player2": "LiL_Mantis",
+      "skillDifference": 4.879978331060659,
+      "averageSkill": -1.5351293789284295,
+      "confidence": 0.12899263595105895
     }
   ],
-  "totalActivePlayers": 11,
-  "unmatchedPlayers": [
-    "Sizin101"
-  ],
+  "totalActivePlayers": 12,
+  "unmatchedPlayers": [],
   "algorithm": "greedy-optimal",
-  "timestamp": "2025-06-05T01:45:59.133Z"
+  "timestamp": "2025-06-10T01:56:01.810Z"
 }
